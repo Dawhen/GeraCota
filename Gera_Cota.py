@@ -470,7 +470,16 @@ def gerar_seta_e_texto(sht, linha_p, comprimento, altura, largura, modelo_RF):
     # Obter as coordenadas da célula em pixels
     posicao_x = celula_s.left
     posicao_y = celula_s.top
-    
+
+    if posicao_x is None or posicao_y is None:
+        print(f"Não foi possível obter as coordenadas da célula S{linha_destino}.")
+        return
+
+    max_linha = sht.api.UsedRange.Rows.Count
+    if linha_destino > max_linha:
+        print(f"linha_destino ({linha_destino}) está fora do limite da planilha ({max_linha}).")
+        return
+
     # Verificar quais setas criar baseado nos valores disponíveis
     setas_criadas = []
 
