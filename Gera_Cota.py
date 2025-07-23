@@ -244,6 +244,7 @@ def gerar_cotas_thread():
                         coluna_dados = "K"
                         offset_comp = 3  # K(n+3)
                         offset_alt = 4   # K(n+4)
+                        offset_larg = None  # Não existe largura para esse modelo
                         print(f"Configuração: RELATÓRIO GERAL, modelo {modelo_RF} - Códigos na coluna L, dados na coluna K")
                     else:
                         # Para outras abas, usar configuração padrão (RELATORIO)
@@ -272,13 +273,23 @@ def gerar_cotas_thread():
                                     # Calcular as linhas correspondentes para comprimento e altura
                                     linha_comp = linha_atual + offset_comp
                                     linha_alt = linha_atual + offset_alt
-                                    linha_larg = linha_atual + offset_larg
+                                    
+                                    # Só calcular linha_larg se offset_larg não for None
+                                    if offset_larg is not None:
+                                        linha_larg = linha_atual + offset_larg
+                                    else:
+                                        linha_larg = None
 
                                     # Pegar os valores de comprimento e altura na coluna definida
                                     try:
                                         comprimento_raw = sht.range(f"{coluna_dados}{linha_comp}").value
                                         altura_raw = sht.range(f"{coluna_dados}{linha_alt}").value
-                                        largura_raw = sht.range(f"{coluna_dados}{linha_larg}").value
+                                        
+                                        # Só acessar largura se linha_larg não for None
+                                        if linha_larg is not None:
+                                            largura_raw = sht.range(f"{coluna_dados}{linha_larg}").value
+                                        else:
+                                            largura_raw = None
                                         
                                         # Normalizar valores vazios para None
                                         comprimento = None if comprimento_raw is None or str(comprimento_raw).strip() == '' else comprimento_raw
@@ -529,7 +540,11 @@ def gerar_seta_e_texto(sht, linha_p, comprimento, altura, largura, modelo_RF):
             print("Criando seta horizontal (comprimento)...")
             # Se já existe seta vertical, posicionar a horizontal mais abaixo
             offset_vertical = 80 if altura is not None else 20
-            
+
+            print(f"Criando seta horizontal com coordenadas:")
+            print(f"  Início: ({posicao_x}, {posicao_y + offset_vertical})")
+            print(f"  Fim: ({posicao_x + 100}, {posicao_y + offset_vertical})")
+
             arrow_horizontal = sht.api.Shapes.AddLine(
                 posicao_x,
                 posicao_y + offset_vertical,
